@@ -8,8 +8,6 @@ on:
 
 permissions:
   contents: read
-  pages: write
-  id-token: write
 
 concurrency:
   group: pages
@@ -18,9 +16,10 @@ concurrency:
 jobs:
   eval:
     runs-on: ubuntu-latest
-    environment:
-      name: github-pages
-      url: ${{ steps.deploy.outputs.page_url }}
+    environment: SIMPLE     # GEMINI_API_KEY is an environment secret of SIMPLE
+    defaults:
+      run:
+        working-directory: gemini
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
@@ -30,9 +29,20 @@ jobs:
       - run: python evals/run_eval.py
         env:
           GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
-      - uses: actions/configure-pages@v5
       - uses: actions/upload-pages-artifact@v3
         with:
-          path: site
+          path: gemini/site
+
+  deploy:
+    needs: eval
+    runs-on: ubuntu-latest
+    permissions:
+      pages: write
+      id-token: write
+    environment:
+      name: github-pages
+      url: ${{ steps.deploy.outputs.page_url }}
+    steps:
+      - uses: actions/configure-pages@v5
       - id: deploy
         uses: actions/deploy-pages@v4
