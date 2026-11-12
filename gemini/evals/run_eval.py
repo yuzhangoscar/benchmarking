@@ -3,7 +3,7 @@ from pathlib import Path
 from google import genai
 from google.genai import types
 
-MODEL = os.environ.get("GEMINI_MODEL", "gemini-3.8-flash")
+MODEL = os.environ.get("GEMINI_MODEL") or "gemini-3.8-flash"
 # Reads GEMINI_API_KEY from the environment. Without a timeout a stuck request hangs the CI job.
 client = genai.Client(http_options=types.HttpOptions(timeout=60_000, retry_options=types.HttpRetryOptions(attempts=2)))
 
