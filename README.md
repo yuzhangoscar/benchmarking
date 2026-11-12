@@ -21,10 +21,20 @@ the model still answers the way you expect, and how fast.
 2. **`run_eval.py`** checks the chosen model is available to the API key, then sends each prompt in
    `cases.jsonl` to Gemini.
 3. Each answer **passes** if it contains the expected text (case-insensitive).
-4. The script writes `index.html` and `results.json`, which **GitHub Pages** publishes.
+4. The script downloads the previously published `history.json`, appends this run, and writes
+   `index.html`, `results.json` and `history.json`, which **GitHub Pages** publishes.
 
-API errors (outages, quota limits, unknown model) fail the job and leave the last good report online;
-wrong answers are normal results and are published.
+## Trend over time
+
+The report page charts every run (up to the last 500):
+
+- **Pass rate** and **average response time**, with one line per model and a red ✕ for runs that hit API errors.
+- **A grid of each test across the last 30 runs**: green passed, red wrong answer, grey API error.
+
+API errors (outages, quota limits) mark the CI run as failed but are still published, so outages show
+up in the trend. If the history can't be downloaded, or the model doesn't exist, nothing is published,
+so the history is never overwritten. The raw data is at
+[`history.json`](https://yuzhangoscar.github.io/benchmarking/history.json).
 
 ## Modules and versions
 
@@ -33,6 +43,7 @@ wrong answers are normal results and are published.
 | <img src="https://cdn.simpleicons.org/googlegemini" width="20"> | Gemini model | `gemini-3.8-flash` | Model under test (override per run) |
 | <img src="https://cdn.simpleicons.org/google" width="20"> | [`google-genai`](https://pypi.org/project/google-genai/) | 3.2.0 | Python SDK for the Gemini API |
 | <img src="https://cdn.simpleicons.org/python" width="20"> | Python | 3.12 | Runs the eval script |
+| <img src="https://cdn.simpleicons.org/chartdotjs" width="20"> | [Chart.js](https://www.chartjs.org/) | 4.x (CDN) | Trend charts on the report page |
 | <img src="https://cdn.simpleicons.org/githubactions" width="20"> | [`actions/checkout`](https://github.com/actions/checkout) | v4 | Checks out the repo |
 | <img src="https://cdn.simpleicons.org/githubactions" width="20"> | [`actions/setup-python`](https://github.com/actions/setup-python) | v5 | Installs Python |
 | <img src="https://cdn.simpleicons.org/githubpages" width="20"> | [`actions/upload-pages-artifact`](https://github.com/actions/upload-pages-artifact) | v3 | Packages the report |
@@ -41,7 +52,8 @@ wrong answers are normal results and are published.
 | <img src="https://cdn.simpleicons.org/ubuntu" width="20"> | Runner | `ubuntu-latest` (Ubuntu 26.04) | CI machine |
 
 `google-genai` is installed unpinned, so CI uses the latest release; 3.2.0 is the version used by the
-most recent run. Everything else in the script comes from the Python standard library.
+most recent run. Everything else in the script comes from the Python standard library; Chart.js is
+loaded by the browser, not installed.
 
 ## Project structure
 
