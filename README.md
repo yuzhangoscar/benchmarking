@@ -4,7 +4,7 @@
 [![Gemini eval](https://github.com/yuzhangoscar/benchmarking/actions/workflows/gemini-eval.yml/badge.svg)](https://github.com/yuzhangoscar/benchmarking/actions/workflows/gemini-eval.yml)
 
 Automated evaluation of Google's **Gemini Flash** model. A small set of test prompts is sent to the
-model on every push, every day, and on demand; each answer is graded against an expected result, and
+model on every push, every three days, and on demand; each answer is graded against an expected result, and
 the outcome is published as a public web page.
 
 **👉 Latest results: <https://yuzhangoscar.github.io/benchmarking/>**
@@ -17,7 +17,9 @@ the model still answers the way you expect, and how fast.
 
 ## How it works
 
-1. **GitHub Actions** starts the `Gemini eval` workflow (on push to `main`, daily at 00:00 UTC, or manually).
+1. **GitHub Actions** starts the `Gemini eval` workflow: on push to `main`, every three days at 00:00 UTC
+   (11:00 Sydney time during daylight saving), or manually. The schedule runs on days 1, 4, 7, … 31 of
+   each month, so at a month's end the gap can be one or two days instead of three.
 2. **`run_eval.py`** checks the chosen model is available to the API key, then sends each prompt in
    `cases.jsonl` to Gemini.
 3. Each answer **passes** if it contains the expected text (case-insensitive).

@@ -8,7 +8,7 @@ on:
         description: "Gemini model ID (blank = default in run_eval.py)"
         required: false
   schedule:
-    - cron: "0 0 * * *"     # optional: daily at midnight UTC
+    - cron: "0 0 */3 * *"   # midnight UTC on days 1, 4, 7, ... 31 of each month
 
 permissions:
   contents: read
