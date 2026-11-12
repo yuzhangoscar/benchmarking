@@ -2,7 +2,7 @@ import html, json, os, sys, time
 from pathlib import Path
 from google import genai
 
-MODEL = os.environ.get("GEMINI_MODEL", "gemini-flash-latest")
+MODEL = os.environ.get("GEMINI_MODEL", "gemini-3.8-flash")
 client = genai.Client()  # reads GEMINI_API_KEY from the environment
 
 available = sorted(
