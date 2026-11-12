@@ -7,6 +7,9 @@ on:
       model:
         description: "Gemini model ID (blank = default in run_eval.py)"
         required: false
+      judge_model:
+        description: "Model that grades LLM-as-a-judge tests (blank = same as the model under test)"
+        required: false
   schedule:
     - cron: "0 0 */3 * *"   # midnight UTC on days 1, 4, 7, ... 31 of each month
 
@@ -37,6 +40,7 @@ jobs:
         env:
           GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
           GEMINI_MODEL: ${{ inputs.model }}
+          GEMINI_JUDGE_MODEL: ${{ inputs.judge_model }}
       # Runs with API errors still write a report so outages show up in the trend.
       - id: upload
         if: ${{ !cancelled() && hashFiles('gemini/site/index.html') != '' }}
