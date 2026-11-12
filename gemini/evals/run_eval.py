@@ -1,9 +1,18 @@
-import html, json, os, time
+import html, json, os, sys, time
 from pathlib import Path
 from google import genai
 
 MODEL = os.environ.get("GEMINI_MODEL", "gemini-flash-latest")
 client = genai.Client()  # reads GEMINI_API_KEY from the environment
+
+available = sorted(
+    m.name.removeprefix("models/")
+    for m in client.models.list()
+    if "generateContent" in (m.supported_actions or [])
+)
+print("Flash models available to this key:", ", ".join(n for n in available if "flash" in n))
+if MODEL not in available:
+    sys.exit(f"Model '{MODEL}' is not available to this API key. Set GEMINI_MODEL to one of the models listed above.")
 
 cases = [json.loads(l) for l in Path("evals/cases.jsonl").read_text().splitlines() if l.strip()]
 results = []
@@ -36,3 +45,8 @@ out = Path("site"); out.mkdir(exist_ok=True)
 <table><tr><th>id</th><th>prompt</th><th>expected</th><th>answer</th><th>result</th><th>time</th></tr>{rows}</table>""")
 (out / "results.json").write_text(json.dumps(results, indent=2))
 print(f"{passed}/{len(results)} passed")
+
+# Wrong answers are results worth publishing; API errors mean the run itself is broken.
+errors = [r["id"] for r in results if r["answer"].startswith("ERROR:")]
+if errors:
+    sys.exit(f"API errors in {len(errors)} case(s): {', '.join(errors)}")
