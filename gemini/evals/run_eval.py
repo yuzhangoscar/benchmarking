@@ -1,9 +1,11 @@
 import html, json, os, sys, time
 from pathlib import Path
 from google import genai
+from google.genai import types
 
 MODEL = os.environ.get("GEMINI_MODEL", "gemini-3.8-flash")
-client = genai.Client()  # reads GEMINI_API_KEY from the environment
+# Reads GEMINI_API_KEY from the environment. Without a timeout a stuck request hangs the CI job.
+client = genai.Client(http_options=types.HttpOptions(timeout=60_000, retry_options=types.HttpRetryOptions(attempts=2)))
 
 available = sorted(
     m.name.removeprefix("models/")
@@ -22,6 +24,7 @@ for case in cases:
         answer = client.models.generate_content(model=MODEL, contents=case["prompt"]).text or ""
     except Exception as e:
         answer = f"ERROR: {e}"
+    print(f"{case['id']}: {time.perf_counter() - start:.1f}s, {answer[:80]!r}", flush=True)
     results.append({
         **case,
         "answer": answer.strip(),

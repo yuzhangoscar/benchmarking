@@ -17,6 +17,7 @@ jobs:
   eval:
     runs-on: ubuntu-latest
     environment: SIMPLE     # GEMINI_API_KEY is an environment secret of SIMPLE
+    timeout-minutes: 10
     defaults:
       run:
         working-directory: gemini
